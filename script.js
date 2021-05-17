@@ -10,6 +10,7 @@ const timeElems = document.querySelectorAll('span');
 let countdownTitle = '';
 let countdownDate = '';
 let countdownValue = Date;
+let countdownActive;
 
 const second = 1000;
 const minute = second * 60;
@@ -21,22 +22,21 @@ const today = new Date().toISOString().split('T')[0]; // Get todays date
 dateElem.setAttribute('min', today);
 
 function updateDOM() {
-    const now = new Date().getTime();
-    const diff = countdownValue - now;
-
-    const days = Math.floor(diff / day);
-    const hours = Math.floor((diff % day) / hour);
-    const minutes = Math.floor((diff % hour) / minute);
-    const seconds = Math.floor((diff % minute) / second);
-    countdownTitleElem.textContent = `${countdownTitle}`;
-    timeElems[0].textContent = `${days}`;
-    timeElems[1].textContent = `${hours}`;
-    timeElems[2].textContent = `${minutes}`;
-    timeElems[3].textContent = `${seconds}`;
-    inputContainer.hidden = true;
-    countdownElem.hidden = false;
-
-
+    countdownActive = setInterval(() => {
+        const now = new Date().getTime();
+        const diff = countdownValue - now;
+        const days = Math.floor(diff / day);
+        const hours = Math.floor((diff % day) / hour);
+        const minutes = Math.floor((diff % hour) / minute);
+        const seconds = Math.floor((diff % minute) / second);
+        countdownTitleElem.textContent = `${countdownTitle}`;
+        timeElems[0].textContent = `${days}`;
+        timeElems[1].textContent = `${hours}`;
+        timeElems[2].textContent = `${minutes}`;
+        timeElems[3].textContent = `${seconds}`;
+        inputContainer.hidden = true;
+        countdownElem.hidden = false;
+    }, second);
 }
 
 function updateCountdown(e) {
@@ -44,10 +44,23 @@ function updateCountdown(e) {
     console.log(e);
     countdownTitle = e.srcElement[0].value;
     countdownDate = e.srcElement[1].value;
-    countdownValue = new Date(countdownDate).getTime();
-    updateDOM();
+    if (countdownDate === '') {
+        alert('Please select a date to countdown to');
+    } else {
+        countdownValue = new Date(countdownDate).getTime();
+        updateDOM();
+    }
 }
 
+function reset() {
+    countdownElem.hidden = true;
+    inputContainer.hidden = false;
+    clearInterval(countdownActive);
+    countdownTitle = '';
+    countdownDate = '';
+    countdownForm.reset()
+}
 
 countdownForm.addEventListener('submit', updateCountdown);
+countdownBtn.addEventListener('click', reset);
 
